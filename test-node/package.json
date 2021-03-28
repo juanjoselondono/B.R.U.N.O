@@ -1,0 +1,11 @@
+{
+  "name": "bruno-ai",
+  "version": "1.0.0",
+  "description": "it's a personal assistant who recognize your voice and follow the commands",
+  "main": "brain.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juan José Londoño David (juanjoselondonodavid@gmail.com)",
+  "license": "ISC"
+}
