@@ -1,0 +1,20 @@
+{
+  "name": "bruno-ai",
+  "version": "1.0.0",
+  "description": "it's a personal assistant who recognize your voice and follow the commands",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Juan José Londoño David (juanjoselondonodavid@gmail.com)",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "socket.io": "^4.0.0",
+    "wikijs": "^6.0.1"
+  },
+  "devDependencies": {}
+}

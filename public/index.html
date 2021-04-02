@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bruno</title>
+    <link rel="stylesheet" href="./assets/css/particles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="particles-js">
+    </div> <!-- stats - count particles -->
+    <div class="items">
+        <div class="menu">
+            <button class="listen-button">
+                <h1 id="title-talker"class="title">Bruno</h1>
+                <p id="text-writer"class="text-writer"></p>
+            </button>
+            <div id="place-holder"></div>
+        </div>            
+    </div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" defer data-deferred="1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS.load('particles-js', './assets/js/particles.json', function () { console.log("Loaded"); });
+    </script> <!-- stats.js lib -->
+    <script src="./assets/js/brain.js"></script>
+</html>
