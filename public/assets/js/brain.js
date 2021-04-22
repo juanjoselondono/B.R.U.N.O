@@ -168,10 +168,6 @@ const speechCommand = (input)=>{
             let text = val.data.Data
             console.log(cutToNumber(text))
             speak(cutToNumber(text))
-        }).then(()=>{
-            speak('Do you want me to tell you more? ...Say yes Bruno to make me understand')
-            .then(function(){
-            })
         })
     }
     else if(input.includes('what can you do')){speak('I can tell you the time. Set a reminder. Open webpages. Search for content and play videos in youtube')}
@@ -198,6 +194,9 @@ const speechCommand = (input)=>{
         else{
             speak('Page not found')
         }
+    }
+    else if(input.includes('sleep')){
+        window.close()
     }
     else{
         speak('Sorry I did not understand')
