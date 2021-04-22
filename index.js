@@ -4,7 +4,7 @@ const router = require('./network/routes')
 const app = express()
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const port = 3000
+const port = process.env.PORT || 8080 
 const socket_port = 8000
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
