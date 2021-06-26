@@ -33,12 +33,17 @@ router.get('/info',(req,res)=>{
         .page(key)
         .then(page => page.info())
         .then((data)=>{
-            response.success(req, res, 200, data)
+            if(data != null){
+                response.success(req, res, 200, data)
+            }
+            else{
+                response.error(req, res, 200, null)
+            }
         });
     }
 })
 router.get('/image', (req,res)=>{
-    var key = req.body.key
+    var key = req.query.key
     if(!key){
         res.status(400)
     }
@@ -47,7 +52,14 @@ router.get('/image', (req,res)=>{
         .page(key)
         .then(page => page.mainImage())
         .then((data)=>{
-            response.success(req, res, 200, data)
+            if(data != null){
+                response.success(req, res, 200, data)
+            }
+            else{
+                response.success(req, res, 200, {
+                    Data: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Mus%C3%A9e_Rodin_1.jpg"
+                })
+            }
         });
     }
 })

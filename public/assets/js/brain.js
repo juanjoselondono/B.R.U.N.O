@@ -9,8 +9,10 @@ const voiceIndex = 2
 var msg = new SpeechSynthesisUtterance();
 var voices = window.speechSynthesis.getVoices();
 //Bring DOM elements
-var holder = document.getElementById('text-writer');
+var holder = document.getElementById("text-writer");
 var talker = document.getElementById("title-talker");
+var responser = document.getElementById("response-container")
+var wiki = document.getElementById("response-wiki")
 //Declare window
 var windows = []
 //youtube API settings
@@ -47,7 +49,11 @@ const getWikiInfo = (key)=>{
 }
 //This function gets a summary from our wiki API
 const getWikiSummary = async(key)=>{
-    const request = await axios.get(`http://localhost:3000/wiki/summary?key=${key}`)
+    const request = await axios.get(`/wiki/summary?key=${key}`)
+    return request
+}
+const getWikiImage = async(key)=>{
+    const request = await axios.get(`/wiki/image?key=${key}`)
     return request
 }
 //This function filter and cut the text defined to the left or the right side.
@@ -62,10 +68,30 @@ function cutToTarget(text, filter, up_down){
     p2 = p1.replace(filter, '')
     return p2                                                          
 }
+function truncateString(string, limit) {
+    if (string.length > limit) {
+      return string.substring(0, limit) + "..."
+    } else {
+      return string
+    }
+  }
 //This function cuts the info until there is a . in the text
+function getPosition(string, subString, index) {
+    return string.split(subString, index).join(subString).length;
+  }
+//this function only god knows how it works, cause I programmed it at 3:00 am in the morning.
 function cutToNumber(text){
-    target = text.indexOf('.');                                             
-    p1 = text.slice(0,target);
+    var shortText = truncateString(text, 180);
+    target = shortText.indexOf('.' || ',');                                             
+    var dot = getPosition(shortText, '.' , 2)
+    if(target > 180){
+        var dot = getPosition(shortText, '.' , 2)
+        p1 = shortText.slice(0, dot)
+    }
+    else{
+        var dot = getPosition(shortText, '.' , 1)
+        p1 = shortText.slice(0, dot)
+    }
     return p1
 }
 //This function makes the GET petition to Google's API
@@ -77,7 +103,7 @@ function playYoutubeVideo(search_key){
         let type  = response.data.items[0].id.kind
         let channel = response.data.items[0].snippet.channelId
         if(type == "youtube#channel"){
-            speak(`Sir, I believe that ${response.data.items[0].snippet.channelTitle} is a youtube channel. Should I reproduce it?`)
+            speak(`${response.data.items[0].snippet.channelTitle} is a youtube channel. Enjoy it!`)
             let currentWindow = window.open(`https://www.youtube.com/channel/${channel}`)
             windows.push(currentWindow)
         }
@@ -134,7 +160,8 @@ by the voice recognition program. It executes the commands that we send to BRUNO
 const speechCommand = (input)=>{
     if (input.includes('play ')||input.includes('reproduce ')){
         input = input.replace('play', '')
-        speak('Alright I will play '+ input)
+        var speech_text = 'Alright I will play '+ input;
+        speak(speech_text)
         playYoutubeVideo(String(input))
     }
     else if(input.includes('stop playing')||input.includes('stop it')){
@@ -143,10 +170,14 @@ const speechCommand = (input)=>{
         current_window.close()
     }
     else if(input.includes('shut up')){
-        speak('Alright')
+        var speech_text = 'Alright';
+        responser.innerHTML = `<p class="response-text">${speech_text}</p>`
+        speak(speech_text)
     }
     else if (input.includes('time is it') || input.includes("what's the time")){
-        speak(`time is ${formatAMPM(new Date)}`).then(()=>{talker.classList.remove("title-animated")})
+        var date = formatAMPM(new Date)
+        responser.innerHTML = `<p class ="response-text">${date}</p>`
+        speak(`time is ${date}`).then(()=>{talker.classList.remove("title-animated")})
     }
     else if (input.includes('what is time in')||input.includes('time in')||input.includes(`what's the time in`)){
         var complete_sentence = cutToTarget(input,'in',false).replace(/\s+/, "") 
@@ -155,24 +186,36 @@ const speechCommand = (input)=>{
         console.log(location)
         console.log(continent)
         time = getTime(continent, city).then((val)=>{
-            speak(`time in ${city} is ${val.data.datetime}`)
+            var speech_text = `time in ${city} is ${val.data.datetime}`;
+            responser.innerHTML = `<p class="response-text">${speech_text}</p>`
+            speak(speech_text)
             console.log(`time in ${city} is ${val.data.datetime}`)
         })
     }
-    else if(input.includes('who is') || input.includes('who the heck is')||input.includes('what is a')){
+    else if(input.includes('who is') || input.includes('who the heck is')||input.includes('what is')||input.includes(`who's`)){
         input = input.replace('who the heck is', '')
         input = input.replace('who is', '') 
-        input = input.replace('what is a', '') 
+        input = input.replace('what is a', '')
+        wiki.innerHTML = '' 
         console.log(input)
         getWikiSummary(input).then(val => {
             let text = val.data.Data
-            console.log(cutToNumber(text))
-            speak(cutToNumber(text))
+            text = cutToNumber(text);
+            wiki.insertAdjacentHTML("afterbegin",`<p class="wiki-text">${text}</p>`)
+            console.log(text)
+            speak(text)
+        }).catch((err)=>{
+            console.log(err)
+            speak('No data found')
         })
+        getWikiImage(input).then(val =>{
+            let url = val.data.Data
+            console.log(url);
+            wiki.insertAdjacentHTML('afterbegin',`<img src = "${url}" class="wiki-image"/>`)
+        }).catch((err)=>speak('No Images found'))
     }
     else if(input.includes('what can you do')){speak('I can tell you the time. Set a reminder. Open webpages. Search for content and play videos in youtube')}
     else if(input.includes('who are you')){speak('I am a Command Voice Interface  ... or a CVI. I was Built by Mr Juan José Londoño to help people with visual problems and also the serve as a personal assistant')}
-
     else if(input.includes('open') || input.includes('open')&& input.includes('.com')){
         input = input.replace('open', '')
         input = input.replace('.com', '')
@@ -195,6 +238,7 @@ const speechCommand = (input)=>{
             speak('Page not found')
         }
     }
+    else if(input.includes('tell me a joke')){speak('  Why you should never fight a Dinosaur?');speak(`because you'll get jurasskicked`); speak(`hahaha`)}
     else if(input.includes('sleep')){
         window.close()
     }
@@ -213,14 +257,13 @@ recognition.addEventListener('result', (e) => {
     let output = e.results[last][0].transcript;
     let confidence = e.results[0][0].confidence
     console.log('Confidence: ' + confidence);
-    console.log('text:  ' + output)
+    console.log(output)
     msg.text = output
     if (output.includes('Bruno')){      //Defines the voice key to make bruno process the Info
         output = output.replace('Bruno', '')
         holder.innerHTML = output
         speechCommand(output.toLocaleLowerCase())
     }
-    //window.open("https://www.youtube.com/watch?v=lw2d7JvPz_U");
     // We will use the Socket.IO here later…
 });
 //Restart voice recogntion to be always listening 

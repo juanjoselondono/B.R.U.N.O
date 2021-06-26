@@ -15,6 +15,6 @@ io.on('connection', (socket) => {
     console.log('a user connected');
 });
 http.listen(socket_port, () => {
-    console.log('Socket Listeing at' + socket_port);
+    console.log('Socket Listeing at ' + socket_port);
 });
 app.listen(port, ()=>console.log(`app listening at http://localhost:${port}`))

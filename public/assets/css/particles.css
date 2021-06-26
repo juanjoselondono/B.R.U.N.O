@@ -18,10 +18,19 @@ canvas {
   height: 100%;
   width: 100%;
   display: grid;
+  overflow: hidden;
+}
+#navbar{
+  align-self: flex-start;
+  width: 100%;
 }
 .menu{
   align-self: center;
   justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
 }
 .listen-button{
   background: none;
@@ -32,7 +41,6 @@ canvas {
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 0.5;
 }
-
 .title{
   font-family: 'steps';
   color: white;
@@ -76,6 +84,7 @@ canvas {
   color: white;
   text-align: center;
   font-size: 1.5em;
+  margin-top: 10%;
 }
 .result-snippet{
   color: white;
@@ -90,3 +99,61 @@ canvas {
   background-size: cover;
   background-position: 50% 50%;
 } /* ---- stats.js ---- */
+.response-text{
+  color: white;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  font-size: 1.2em;
+}
+#response-container{
+  width: 100%;
+  height: auto;
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+}
+/*Wiki Styles*/
+#response-wiki{
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+  overflow-x: hidden;
+}
+.wiki-image{
+  object-fit: cover;
+  height: auto; 
+  width: auto; 
+  max-width: 300px; 
+  max-height: 300px;
+  justify-self: center;
+  align-self: center;
+}
+.wiki-text{
+  color: white;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  font-size: 1.2em;
+  width: 50%;
+  margin: 5%;
+}
+/*Info*/
+.info_list_container{
+  list-style:lower-greek
+}
+.info_list_item{
+}
+@media (max-width: 500px) {
+  .title{
+    font-family: 'steps';
+    color: white;
+    font-size: 2.5em;
+    border-radius: 25px;
+  }
+  #response-wiki{
+    flex-direction: column;
+  }
+}
