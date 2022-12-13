@@ -10,7 +10,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="sweetalert2.min.css">
 </head>
 <body>
     <div id="particles-js">
@@ -19,22 +18,29 @@
         <div class="menu">
             <nav class="navbar navbar-light bg-transparent" id="navbar">
                 <span class="navbar-text" style="color:rgba(255, 255, 255, 0.863);font-size: 12px;align-self: center;">
-                    Made by Juan Londoño
+                    Made by Juan José Londoño
                 </span>
                 <div style="display: flex;flex-direction: row;">
                     <i class="bi bi-info-circle" class="nav-item nav-link" style="color:white;font-size: 20px;align-self: center;" onclick="openCommandList()"></i>
                     <a class="nav-item nav-link" href="https://github.com/juanjoselondono/B.R.U.N.O"><i class="bi bi-github" style="color:white;font-size: 20px;"></i></a>
                 </div>
             </nav>
-            <button class="listen-button">
+            <button class="listen-button" onclick="stopTalking()">
                 <h1 id="title-talker"class="title">Bruno</h1>
-                <p id="text-writer"class="text-writer"></p>
             </button>
+            <p id="text-writer"class="text-writer"></p>
+
+            <div class="inputContainer">
+                <input class="askInput" id = "input-text" placeholder="Ask bruno anything" ></input>
+                <button class="askButton" onclick="ask()">Ask </button>
+            </div>
+        </div> 
+        <div>
             <div id="response-container">
                 <div id = "response-wiki" class="wiki"></div>
             </div>
             <div id="place-holder"></div>
-        </div>            
+        </div>           
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" defer data-deferred="1"></script>
@@ -53,7 +59,10 @@
             top
             no-repeat
         `
+        }).then(()=>{
+            speak('Hello I am a Command Voice Interface  ... or a CVI. I was Built by Mr Juan José Londoño. I am based on openAI GPT3  and Google Speech Synthesis, to start say B.R.U.N.O and ask whataver it is you got in mind')
         })
+        
         function openCommandList(){
             var list = `
                 <h1><strong>Command List</strong></h1>
@@ -66,7 +75,9 @@
                     <li class="list-group-item"><strong>open</strong> _key.com_</li>
                 </ul>
                 <h1><strong>Usage</strong></h1>
-                <p>Open your microphone,Say "bruno" and then say your command</p>
+                <p>Open your microphone,Say "bruno" and then say your command. There is also an input field if you rather not to speak</p>
+                <br>
+                <h6>if you don't specify a command it will ask GPT-3</h6>
             `
             Swal.fire(
             {
@@ -76,6 +87,17 @@
             }
             )
         }
+    function stopTalking(){
+        speechSynthesis.cancel()
+    }
+    function ask (){
+        var input = document.getElementById("input-text")
+        askGTP3(input.value).then(val =>{
+            let text = val.data.Data
+            console.log("data: ", val)
+            speak(text)
+        })
+    }
     </script>
     <script src="./assets/js/brain.js"></script>
 </html>

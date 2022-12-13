@@ -1,18 +1,31 @@
 //Define Speech Recognition
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+function setSpeech() {
+    return new Promise(
+        function (resolve, reject) {
+            let synth = window.speechSynthesis;
+            let id;
+            id = setInterval(() => {
+                if (synth.getVoices().length !== 0) {
+                    resolve(synth.getVoices());
+                    clearInterval(id);
+                }
+            }, 10);
+        }
+    )
+}
+let s = setSpeech();
+s.then((voices) => console.log(voices));    // Or any other actions you want to take...
 const recognition = new SpeechRecognition();
 //Define voice recognition
-recognition.lang = 'en-US';
+recognition.lang = 'en-GB';
 recognition.interimResults = false;
-const lang = 'en-GB'
-const voiceIndex = 2
+const voiceIndex = 3 //britsh male UK
 var msg = new SpeechSynthesisUtterance();
-var voices = window.speechSynthesis.getVoices();
 //Bring DOM elements
 var holder = document.getElementById("text-writer");
 var talker = document.getElementById("title-talker");
 var responser = document.getElementById("response-container")
-var wiki = document.getElementById("response-wiki")
 //Declare window
 var windows = []
 //youtube API settings
@@ -37,9 +50,7 @@ const getTime = async(continent, location)=>{
 }
 //This function gets Info from our wiki API
 const getWikiInfo = (key)=>{
-    axios.get(`http://localhost:3000/wiki/info?key=${key}`, {
-        key : 'Carl Sagan'
-      })
+    axios.get(`http://localhost:3000/wiki/info?key=${key}`)
     .then((response) => {
         console.log(response);
     }, (error) => {
@@ -56,18 +67,59 @@ const getWikiImage = async(key)=>{
     const request = await axios.get(`/wiki/image?key=${key}`)
     return request
 }
+//This function calls the gpt3 API
+const askGTP3 = async(question)=>{
+    const request = await axios.get(`/openAI/gpt3?question=${question}`)
+    return request
+}
 //This function filter and cut the text defined to the left or the right side.
 function cutToTarget(text, filter, up_down){
-    target = text.indexOf(filter);                                             
-    if(up_down){                                                             
-        p1 = text.slice(0,target)                                           
-    }                                                                     
-    else{                                                                   
-        p1 = text.slice(target)                                             
+    target = text.indexOf(filter);
+    if(up_down){
+        p1 = text.slice(0,target)
+    }
+    else{
+        p1 = text.slice(target)
     }
     p2 = p1.replace(filter, '')
-    return p2                                                          
+    return p2
 }
+function splitString(string, chunkSize) {
+    // Use a regular expression to identify word boundaries
+    const regex = /\b/;
+
+    // Split the string into words
+    const words = string.split(regex);
+
+    // Initialize the list of chunks
+    const chunks = [];
+
+    // Keep track of the current chunk
+    let currentChunk = "";
+
+    // Iterate over the words
+    for (const word of words) {
+      // If adding the current word to the chunk would make it too long,
+      // add the current chunk to the list of chunks and start a new chunk
+      if (currentChunk.length + word.length > chunkSize) {
+        chunks.push(currentChunk);
+        currentChunk = "";
+      }
+
+      // Add the current word to the current chunk
+      currentChunk += word;
+    }
+
+    // Add any remaining text to the list of chunks
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+
+    return chunks;
+  }
+
+
+
 function truncateString(string, limit) {
     if (string.length > limit) {
       return string.substring(0, limit) + "..."
@@ -82,7 +134,7 @@ function getPosition(string, subString, index) {
 //this function only god knows how it works, cause I programmed it at 3:00 am in the morning.
 function cutToNumber(text){
     var shortText = truncateString(text, 180);
-    target = shortText.indexOf('.' || ',');                                             
+    target = shortText.indexOf('.' || ',');
     var dot = getPosition(shortText, '.' , 2)
     if(target > 180){
         var dot = getPosition(shortText, '.' , 2)
@@ -96,7 +148,7 @@ function cutToNumber(text){
 }
 //This function makes the GET petition to Google's API
 function playYoutubeVideo(search_key){
-    const api_uri = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${maxResults}&q=${search_key}&key=${key}`; 
+    const api_uri = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${maxResults}&q=${search_key}&key=${key}`;
     axios.get(api_uri).then((response)=>{
         console.log(response)
         let id = response.data.items[0].id.videoId
@@ -117,21 +169,54 @@ function playYoutubeVideo(search_key){
     })
 }
 //This Async function begin the taking process
-const speak = async (text) => {
+function speakSyncronusly(text){
+    return new Promise((resolve, reject)=>{
+        var talker = document.getElementById("title-talker");
+        let s = setSpeech();
+        s.then((voices) => {
+            const message = new SpeechSynthesisUtterance(text)
+            const voice = voices[voiceIndex]
+            message.voice = voice
+            message.addEventListener('start', ()=>{
+                talker.classList.add("title-animated")
+            })
+            message.addEventListener('end', function () {
+                talker.classList.remove("title-animated")
+                talker.classList.add(".title-unanimated")
+            })
+            speechSynthesis.cancel()
+            speechSynthesis.speak(message)
+            resolve()
+        });
+    })
+}
+var myTimeout;
+function myTimer() {
+    window.speechSynthesis.pause();
+    window.speechSynthesis.resume();
+    myTimeout = setTimeout(myTimer, 10000);
+}
+const speak = async(text) => {
     var talker = document.getElementById("title-talker");
-    if (!speechSynthesis) {
-      return
-    }
-    const message = new SpeechSynthesisUtterance(text)
-    message.voice = await chooseVoice()
-    message.addEventListener('start', ()=>{
-        talker.classList.add("title-animated")
-    })
-    message.addEventListener('end', function () {
-        talker.classList.remove("title-animated")
-        talker.classList.add(".title-unanimated")
-    })
-    speechSynthesis.speak(message)
+    let s = setSpeech();
+    s.then((voices) => {
+        const message = new SpeechSynthesisUtterance(text)
+        const voice = voices[voiceIndex]
+        message.voice = voice
+        message.addEventListener('start', ()=>{
+            talker.classList.add("title-animated")
+        })
+        message.addEventListener('end', function () {
+            talker.classList.remove("title-animated")
+            talker.classList.add(".title-unanimated")
+        })
+        speechSynthesis.cancel()
+        myTimeout = setTimeout(myTimer, 10000);
+        message.onend =  function() { clearTimeout(myTimeout); }
+        responser.innerHTML = `<p class ="response-text">${text}</p>`
+        speechSynthesis.speak(message)
+    });
+
 }
 //This Async function get the voices from the google API
 const getVoices = () => {
@@ -152,10 +237,11 @@ const chooseVoice = async () => {
     const voices = (await getVoices()).filter((voice) => voice.lang == lang)
 
     return new Promise((resolve) => {
+        console.log(voices[voiceIndex])
         resolve(voices[voiceIndex])
     })
 }
-/* This function is where our data is sent when 'BRUNO' key is understand 
+/* This function is where our data is sent when 'BRUNO' key is understand
 by the voice recognition program. It executes the commands that we send to BRUNO*/
 const speechCommand = (input)=>{
     if (input.includes('play ')||input.includes('reproduce ')){
@@ -179,29 +265,28 @@ const speechCommand = (input)=>{
         responser.innerHTML = `<p class ="response-text">${date}</p>`
         speak(`time is ${date}`).then(()=>{talker.classList.remove("title-animated")})
     }
-    else if (input.includes('what is time in')||input.includes('time in')||input.includes(`what's the time in`)){
-        var complete_sentence = cutToTarget(input,'in',false).replace(/\s+/, "") 
-        var city = cutToTarget(complete_sentence, ' ', false).replace(/\s/g, "").toLowerCase()
-        var continent = cutToTarget(complete_sentence,' ', true).replace(/\s/g, "").toLowerCase()
-        console.log(location)
-        console.log(continent)
-        time = getTime(continent, city).then((val)=>{
-            var speech_text = `time in ${city} is ${val.data.datetime}`;
-            responser.innerHTML = `<p class="response-text">${speech_text}</p>`
-            speak(speech_text)
-            console.log(`time in ${city} is ${val.data.datetime}`)
-        })
-    }
-    else if(input.includes('who is') || input.includes('who the heck is')||input.includes('what is')||input.includes(`who's`)){
+    // else if (input.includes('what the time is in')||input.includes('time in')||input.includes(`what's the time in`)){
+    //     var complete_sentence = cutToTarget(input,'in',false).replace(/\s+/, "")
+    //     var city = cutToTarget(complete_sentence, ' ', false).replace(/\s/g, "").toLowerCase()
+    //     var continent = cutToTarget(complete_sentence,' ', true).replace(/\s/g, "").toLowerCase()
+    //     console.log(location)
+    //     console.log(continent)
+    //     time = getTime(continent, city).then((val)=>{
+    //         var speech_text = `time in ${city} is ${val.data.datetime}`;
+    //         responser.innerHTML = `<p class="response-text">${speech_text}</p>`
+    //         speak(speech_text)
+    //         console.log(`time in ${city} is ${val.data.datetime}`)
+    //     })
+    // }
+    else if(input.includes('who is') || input.includes('who the heck is')||input.includes(`who's`)){
         input = input.replace('who the heck is', '')
-        input = input.replace('who is', '') 
-        input = input.replace('what is a', '')
-        wiki.innerHTML = '' 
+        input = input.replace('who is', '')
+        responser.innerHTML = ''
         console.log(input)
         getWikiSummary(input).then(val => {
             let text = val.data.Data
             text = cutToNumber(text);
-            wiki.insertAdjacentHTML("afterbegin",`<p class="wiki-text">${text}</p>`)
+            responser.insertAdjacentHTML("afterbegin",`<p class="wiki-text">${text}</p>`)
             console.log(text)
             speak(text)
         }).catch((err)=>{
@@ -211,11 +296,11 @@ const speechCommand = (input)=>{
         getWikiImage(input).then(val =>{
             let url = val.data.Data
             console.log(url);
-            wiki.insertAdjacentHTML('afterbegin',`<img src = "${url}" class="wiki-image"/>`)
+            responser.insertAdjacentHTML('afterbegin',`<img src = "${url}" class="wiki-image"/>`)
         }).catch((err)=>speak('No Images found'))
     }
-    else if(input.includes('what can you do')){speak('I can tell you the time. Set a reminder. Open webpages. Search for content and play videos in youtube')}
-    else if(input.includes('who are you')){speak('I am a Command Voice Interface  ... or a CVI. I was Built by Mr Juan José Londoño to help people with visual problems and also the serve as a personal assistant')}
+    else if(input.includes('what can you do')){speak('I can tell you the time. Calculate Math equations. Program code in multiple languages. Translate text. Open webpages. Search for content and play videos in youtube ... And much more')}
+    else if(input.includes('who are you')){speak('I am a Command Voice Interface  ... or a CVI. I was Built by Mr Juan José Londoño. I am based on openAI GPT3  and Google Speech Synthesis')}
     else if(input.includes('open') || input.includes('open')&& input.includes('.com')){
         input = input.replace('open', '')
         input = input.replace('.com', '')
@@ -238,14 +323,18 @@ const speechCommand = (input)=>{
             speak('Page not found')
         }
     }
-    else if(input.includes('tell me a joke')){speak('  Why you should never fight a Dinosaur?');speak(`because you'll get jurasskicked`); speak(`hahaha`)}
-    else if(input.includes('sleep')){
-        window.close()
+    else if(input == '' ){
+        speak('Hi sir, did you called me?')
     }
     else{
-        speak('Sorry I did not understand')
+        speak('connecting GPT3 ...')
+        askGTP3(input).then(val =>{
+            let text = val.data.Data
+            console.log("data: ", val)
+            speak(text)
+        })
     }
-    
+
 }
 document.getElementsByClassName('listen-button')[0].addEventListener('click', () => {
 });
@@ -266,7 +355,7 @@ recognition.addEventListener('result', (e) => {
     }
     // We will use the Socket.IO here later…
 });
-//Restart voice recogntion to be always listening 
+//Restart voice recogntion to be always listening
 recognition.onend = function() {
     recognition.start()
 }

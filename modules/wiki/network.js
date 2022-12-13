@@ -37,7 +37,7 @@ router.get('/info',(req,res)=>{
                 response.success(req, res, 200, data)
             }
             else{
-                response.error(req, res, 200, null)
+                response.error(req, res, 400, null)
             }
         });
     }

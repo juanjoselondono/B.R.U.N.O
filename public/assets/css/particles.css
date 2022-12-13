@@ -37,9 +37,9 @@ canvas {
   outline: none;
   border: none;
   transition: 1s;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 0.5;
+}
+.listen-button:active{
+  animation: speak 1s infinite;
 }
 .title{
   font-family: 'steps';
@@ -48,7 +48,7 @@ canvas {
   border-radius: 25px;
 }
 .title-animated{
-  animation: speak 1.3s ease forwards;
+  animation: speak 1s infinite;
 }
 .title-unanimated{
   animation: silence 2s ease forwards;
@@ -84,7 +84,7 @@ canvas {
   color: white;
   text-align: center;
   font-size: 1.5em;
-  margin-top: 10%;
+  margin: 10%;
 }
 .result-snippet{
   color: white;
@@ -101,18 +101,26 @@ canvas {
 } /* ---- stats.js ---- */
 .response-text{
   color: white;
-  text-align: center;
+  text-align: left;
   justify-self: center;
   align-self: center;
   font-size: 1.2em;
+  overflow-y: scroll;
+  scrollbar-width: none; /* for Firefox */
+  margin-right: 30vh;
+  margin-left: 30vh;
 }
 #response-container{
   width: 100%;
-  height: auto;
+  height: 80%;
   align-self: flex-end;
   display: flex;
   flex-direction: column;
   align-content: center;
+  overflow: hidden;
+}
+.response-text::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
 }
 /*Wiki Styles*/
 #response-wiki{
@@ -121,15 +129,16 @@ canvas {
   align-content: center;
   justify-content: center;
   overflow-x: hidden;
+  margin-bottom: 5%;
 }
 .wiki-image{
   object-fit: cover;
   height: auto; 
-  width: auto; 
-  max-width: 300px; 
-  max-height: 300px;
+  width: 30vh; 
+  height: 20vh;
   justify-self: center;
   align-self: center;
+  object-fit: contain;
 }
 .wiki-text{
   color: white;
@@ -140,11 +149,33 @@ canvas {
   width: 50%;
   margin: 5%;
 }
-/*Info*/
-.info_list_container{
-  list-style:lower-greek
+/*Input*/
+.inputContainer{
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
 }
-.info_list_item{
+.askInput{
+  border-top-left-radius: 20px;
+  text-align: center;
+  border: none;
+  outline: none;
+  width: 80%;
+  height: 2rem;
+}
+.askButton{
+  border: none;
+  background-color: rgb(252, 58, 58);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  color: white;
+  width: 20%;
+}
+.askButton:active{
+  transform: scale(1.4);
+  transition: 0.2s;
 }
 @media (max-width: 500px) {
   .title{
@@ -155,5 +186,8 @@ canvas {
   }
   #response-wiki{
     flex-direction: column;
+  }
+  .response-text{
+    margin: 15px;
   }
 }
