@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "it's a personal assistant who recognize your voice and follow the commands",
   "main": "index.js",
-  "engines": {
-    "node": "14.x"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
