@@ -4,7 +4,7 @@ const response = require('../../network/response');
 const router = express.Router();
 const { Configuration, OpenAIApi } = require("openai")
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration)
 
@@ -17,11 +17,15 @@ router.get('/gpt3',(req, res)=>{
   })
 
   console.info('cargando información ...')
-  completion.then((r) =>{
-    var answer = r.data.choices[0].text
-    console.info(answer)
-    response.success(req, res, 200, answer)
-  })
+  try{
+    completion.then((r) =>{
+      var answer = r.data.choices[0].text
+      console.info(answer)
+      response.success(req, res, 200, answer)
+    })
+  }catch(err){
+    console.error(err)
+  }
 })
 
 module.exports = router
