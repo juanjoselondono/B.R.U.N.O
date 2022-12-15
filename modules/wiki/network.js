@@ -18,7 +18,8 @@ router.get('/summary',(req, res)=>{
             response.success(req, res, 200, data)
         })
         .catch((err)=>{
-            response.error(req, res, 400, '[wiki/network] sentence not defined')
+            response.error(req, res, 400, `[wiki/network] ${err}`)
+
         })
     }
 })
@@ -52,15 +53,11 @@ router.get('/image', (req,res)=>{
         .page(key)
         .then(page => page.mainImage())
         .then((data)=>{
-            if(data != null){
-                response.success(req, res, 200, data)
-            }
-            else{
-                response.success(req, res, 200, {
-                    Data: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Mus%C3%A9e_Rodin_1.jpg"
-                })
-            }
-        });
+            response.success(req, res, 200, data)
+        })
+        .catch((err)=>{
+            response.error(req, res, 200,err)
+        })
     }
 })
 module.exports = router

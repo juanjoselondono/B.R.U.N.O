@@ -4,7 +4,7 @@ const response = require('../../network/response');
 const router = express.Router();
 const { Configuration, OpenAIApi } = require("openai")
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration)
 
