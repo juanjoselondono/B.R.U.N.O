@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const router = require('./network/routes')
+require('dotenv').config();
 const app = express()
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
